@@ -28,17 +28,11 @@ class LeadForm(forms.ModelForm):
         self.fields["owner"].label = "Handled by"
         self.fields["business"].empty_label = None
         self.fields["source"].required = False
+        self.fields["owner"].required = False
+        self.fields["owner"].empty_label = "Me"
 
-    def clean(self):
-        data = super().clean()
-        status = data.get("status")
-        if status == Lead.Status.LOST and not (data.get("lost_reason") or "").strip():
-            self.add_error("lost_reason", "Note why this lead was lost.")
-        if status == Lead.Status.TRIAL and not data.get("trial_start"):
-            self.add_error("trial_start", "Add the trial start date.")
-        if status == Lead.Status.BOOKED and not data.get("booked_for"):
-            self.add_error("booked_for", "Add the booking date.")
-        return data
+    def clean_value(self):
+        return self.cleaned_data.get("value") or 0
 
 
 class BusinessForm(forms.ModelForm):

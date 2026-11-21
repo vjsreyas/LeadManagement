@@ -47,21 +47,16 @@ class FlowTests(Base):
         self.client.post(f"/businesses/{self.re.pk}/delete/")
         self.assertFalse(Business.objects.filter(pk=self.re.pk).exists())
 
-    def test_create_lead_validates_status_dates(self):
-        data = {"business": self.gyms.pk, "name": "Flex", "owner": self.a.pk, "status": "trial", "value": "0", "source": "Walk-in"}
-        self.assertEqual(self.client.post("/leads/new/", data).status_code, 200)
-        data["trial_start"] = "2026-05-01"
-        r = self.client.post("/leads/new/", data)
-        lead = Lead.objects.get(name="Flex")
+    def test_everything_optional(self):
+        r = self.client.post("/leads/new/", {"business": self.gyms.pk, "status": "lost", "value": ""})
+        lead = Lead.objects.get()
         self.assertRedirects(r, f"/leads/{lead.pk}/")
-        self.assertEqual(lead.timeline.count(), 1)
+        self.assertEqual((lead.name, lead.owner, lead.value), ("Unnamed lead", self.a, 0))
+        self.assertIsNotNone(lead.closed_at)
 
-    def test_lost_needs_reason(self):
-        data = {"business": self.gyms.pk, "name": "X", "owner": self.a.pk, "status": "lost", "value": "0"}
-        self.assertEqual(self.client.post("/leads/new/", data).status_code, 200)
-        data["lost_reason"] = "Too expensive"
-        self.client.post("/leads/new/", data)
-        self.assertIsNotNone(Lead.objects.get(name="X").closed_at)
+    def test_blank_name_uses_phone(self):
+        self.client.post("/leads/new/", {"business": self.gyms.pk, "status": "trial", "phone": "999"})
+        self.assertEqual(Lead.objects.get().name, "999")
 
     def test_quick_status_change_sets_dates_and_logs(self):
         lead = self.lead()

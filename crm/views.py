@@ -201,6 +201,8 @@ def lead_edit(request, pk=None):
     form = LeadForm(request.POST or None, instance=lead)
     if request.method == "POST" and form.is_valid():
         lead = form.save(commit=False)
+        if not lead.owner_id:
+            lead.owner = request.user
         if lead.status != old_status or not pk:
             lead.closed_at = timezone.now() if lead.status in ("won", "lost") else None
         lead.save()

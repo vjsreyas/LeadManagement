@@ -49,7 +49,7 @@ class Lead(models.Model):
     SOURCES = [(s, s) for s in ["Walk-in", "Cold call", "WhatsApp", "Instagram", "Referral", "Website", "Other"]]
 
     business = models.ForeignKey(Business, on_delete=models.PROTECT, related_name="leads")
-    name = models.CharField("Lead / business name", max_length=120)
+    name = models.CharField("Lead / business name", max_length=120, blank=True)
     contact_name = models.CharField("Contact person", max_length=120, blank=True)
     phone = models.CharField(max_length=35, blank=True)
     email = models.EmailField(blank=True)
@@ -57,7 +57,7 @@ class Lead(models.Model):
     source = models.CharField(max_length=30, choices=SOURCES, default="Cold call", blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="leads")
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.NEW, db_index=True)
-    value = models.DecimalField("Deal value", max_digits=12, decimal_places=2, default=0, validators=[MinValueValidator(0)])
+    value = models.DecimalField("Deal value", max_digits=12, decimal_places=2, default=0, blank=True, validators=[MinValueValidator(0)])
     last_contacted = models.DateField(null=True, blank=True)
     next_follow_up = models.DateField("Next follow-up", null=True, blank=True)
     trial_start = models.DateField(null=True, blank=True)
@@ -74,6 +74,11 @@ class Lead(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.name.strip():
+            self.name = self.contact_name or self.phone or self.email or "Unnamed lead"
+        super().save(*args, **kwargs)
 
     @property
     def is_open(self):
