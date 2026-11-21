@@ -54,6 +54,10 @@ class Lead(models.Model):
     phone = models.CharField(max_length=35, blank=True)
     email = models.EmailField(blank=True)
     location = models.CharField(max_length=120, blank=True)
+    instagram = models.CharField("Instagram link", max_length=300, blank=True)
+    facebook = models.CharField("Facebook link", max_length=300, blank=True)
+    linkedin = models.CharField("LinkedIn link", max_length=300, blank=True)
+    website = models.CharField("Website", max_length=300, blank=True)
     source = models.CharField(max_length=30, choices=SOURCES, default="Cold call", blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="leads")
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.NEW, db_index=True)
@@ -75,7 +79,22 @@ class Lead(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def _url(value, host):
+        value = (value or "").strip()
+        if not value:
+            return ""
+        if value.lower().startswith(("http://", "https://")):
+            return value
+        if "." not in value:  # bare handle like @gym or gym
+            return f"https://{host}/{value.lstrip('@/')}"
+        return "https://" + value.lstrip("/")
+
     def save(self, *args, **kwargs):
+        self.instagram = self._url(self.instagram, "instagram.com")
+        self.facebook = self._url(self.facebook, "facebook.com")
+        self.linkedin = self._url(self.linkedin, "linkedin.com/in")
+        self.website = self._url(self.website, "")
         if not self.name.strip():
             self.name = self.contact_name or self.phone or self.email or "Unnamed lead"
         super().save(*args, **kwargs)

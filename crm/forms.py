@@ -15,7 +15,7 @@ def person(user):
 class LeadForm(forms.ModelForm):
     class Meta:
         model = Lead
-        fields = ["business", "name", "contact_name", "phone", "email", "location", "source", "owner", "status", "value",
+        fields = ["business", "name", "contact_name", "phone", "email", "location", "instagram", "facebook", "linkedin", "website", "source", "owner", "status", "value",
                   "last_contacted", "next_follow_up", "trial_start", "trial_end", "booked_for", "lost_reason", "notes"]
         widgets = {"notes": forms.Textarea(attrs={"rows": 4, "placeholder": "What was said, what they need, what to do next"}),
                    **{f: forms.DateInput(attrs={"type": "date"}) for f in
@@ -28,6 +28,8 @@ class LeadForm(forms.ModelForm):
         self.fields["owner"].label = "Handled by"
         self.fields["business"].empty_label = None
         self.fields["source"].required = False
+        for f, ph in (("instagram", "instagram.com/… or @handle"), ("facebook", "facebook.com/…"), ("linkedin", "linkedin.com/in/…"), ("website", "example.com")):
+            self.fields[f].widget.attrs["placeholder"] = ph
         self.fields["owner"].required = False
         self.fields["owner"].empty_label = "Me"
 

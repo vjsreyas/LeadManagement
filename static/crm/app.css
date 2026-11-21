@@ -48,3 +48,4 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-
 @media(max-width:820px){
 .sidebar{position:fixed;left:-250px;z-index:20;transition:left .2s}body.nav-open .sidebar{left:0}.menu{display:block;background:none;border:0;font-size:1.4rem}
 .topbar{padding:10px 14px}main{padding:16px 14px}.two,.two.wide-left,.grid{grid-template-columns:1fr}.dl{grid-template-columns:100px 1fr}}
+.links{display:flex;gap:12px;flex-wrap:wrap}

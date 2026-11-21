@@ -54,6 +54,12 @@ class FlowTests(Base):
         self.assertEqual((lead.name, lead.owner, lead.value), ("Unnamed lead", self.a, 0))
         self.assertIsNotNone(lead.closed_at)
 
+    def test_social_links_optional_and_normalised(self):
+        self.client.post("/leads/new/", {"business": self.gyms.pk, "status": "new", "instagram": "@ironparadise", "facebook": "facebook.com/iron", "linkedin": "https://linkedin.com/in/x"})
+        lead = Lead.objects.get()
+        self.assertEqual((lead.instagram, lead.facebook, lead.linkedin), ("https://instagram.com/ironparadise", "https://facebook.com/iron", "https://linkedin.com/in/x"))
+        self.assertContains(self.client.get(f"/leads/{lead.pk}/"), 'href="https://instagram.com/ironparadise"')
+
     def test_blank_name_uses_phone(self):
         self.client.post("/leads/new/", {"business": self.gyms.pk, "status": "trial", "phone": "999"})
         self.assertEqual(Lead.objects.get().name, "999")

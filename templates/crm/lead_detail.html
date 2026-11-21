@@ -12,6 +12,7 @@
 <dt>Phone</dt><dd>{% if lead.phone %}<a href="tel:{{ lead.phone }}">{{ lead.phone }}</a> · <a href="https://wa.me/{{ lead.phone|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener">WhatsApp</a>{% else %}—{% endif %}</dd>
 <dt>Email</dt><dd>{% if lead.email %}<a href="mailto:{{ lead.email }}">{{ lead.email }}</a>{% else %}—{% endif %}</dd>
 <dt>Location</dt><dd>{{ lead.location|default:"—" }}</dd>
+{% if lead.instagram or lead.facebook or lead.linkedin or lead.website %}<dt>Links</dt><dd class="links">{% if lead.instagram %}<a href="{{ lead.instagram }}" target="_blank" rel="noopener noreferrer">Instagram</a>{% endif %}{% if lead.facebook %}<a href="{{ lead.facebook }}" target="_blank" rel="noopener noreferrer">Facebook</a>{% endif %}{% if lead.linkedin %}<a href="{{ lead.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>{% endif %}{% if lead.website %}<a href="{{ lead.website }}" target="_blank" rel="noopener noreferrer">Website</a>{% endif %}</dd>{% endif %}
 <dt>Source</dt><dd>{{ lead.source|default:"—" }}</dd>
 <dt>Handled by</dt><dd>{{ lead.owner|display_name }}</dd>
 <dt>Deal value</dt><dd>{% if lead.value %}{{ lead.value|money }}{% else %}—{% endif %}</dd>
