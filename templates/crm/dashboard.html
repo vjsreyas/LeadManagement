@@ -1,0 +1,24 @@
+{% extends 'crm/base.html' %}{% load crm_tags %}{% block content %}
+<div class="page-head"><h1>Dashboard</h1></div>
+<div class="stats">
+<div class="card stat"><span>Open leads</span><strong>{{ open_count }}</strong></div>
+<div class="card stat"><span>In trial</span><strong>{% for s in statuses %}{% if s.key == 'trial' %}{{ s.count }}{% endif %}{% endfor %}</strong></div>
+<div class="card stat"><span>Booked</span><strong>{% for s in statuses %}{% if s.key == 'booked' %}{{ s.count }}{% endif %}{% endfor %}</strong></div>
+<div class="card stat"><span>Closed won</span><strong>{{ won }}</strong>{% if win_rate is not None %}<small>{{ win_rate }}% win rate</small>{% endif %}</div>
+<div class="card stat {% if overdue_count %}warn{% endif %}"><span>Follow-ups overdue</span><strong>{{ overdue_count }}</strong></div>
+</div>
+
+<h2>By business</h2>
+<div class="biz-grid">{% for row in per_business %}
+<a class="card biz" href="{% url 'business' row.business.slug %}" style="border-top:4px solid {{ row.business.color }}">
+<div class="biz-head"><strong>{{ row.business.name }}</strong><span class="muted">{{ row.total }} lead{{ row.total|pluralize }}</span></div>
+<div class="chips">{% for c in row.chips %}<span class="badge s-{{ c.key }}">{{ c.count }} {{ c.label }}</span>{% empty %}<span class="muted sm">No leads yet</span>{% endfor %}</div></a>
+{% empty %}<div class="card empty">Add your first business (Gyms, Real estate, Clinics…). <a href="{% url 'businesses' %}">Add business</a></div>{% endfor %}</div>
+
+<div class="two">
+<section><h2>Follow up now</h2><div class="card flush"><ul class="list">{% for lead in follow_ups %}<li><div><a class="strong" href="{% url 'lead_detail' lead.pk %}">{{ lead.name }}</a><div class="muted sm">{{ lead.business.name }} · {{ lead.owner|display_name }}</div></div><span class="{% if lead.follow_up_overdue %}overdue{% endif %}">{{ lead.next_follow_up|date:"d M" }}</span></li>{% empty %}<li class="empty">Nothing due. Set a follow-up date on a lead to see it here.</li>{% endfor %}</ul></div></section>
+<section><h2>In trial</h2><div class="card flush"><ul class="list">{% for lead in trials %}<li><div><a class="strong" href="{% url 'lead_detail' lead.pk %}">{{ lead.name }}</a><div class="muted sm">{{ lead.business.name }} · {{ lead.owner|display_name }}</div></div><span class="muted sm">{% if lead.trial_end %}ends {{ lead.trial_end|date:"d M" }}{% else %}no end date{% endif %}</span></li>{% empty %}<li class="empty">No trials running.</li>{% endfor %}</ul></div></section>
+<section><h2>Booked</h2><div class="card flush"><ul class="list">{% for lead in bookings %}<li><div><a class="strong" href="{% url 'lead_detail' lead.pk %}">{{ lead.name }}</a><div class="muted sm">{{ lead.business.name }} · {{ lead.owner|display_name }}</div></div><span class="muted sm">{{ lead.booked_for|date:"d M"|default:"—" }}</span></li>{% empty %}<li class="empty">Nothing booked.</li>{% endfor %}</ul></div></section>
+<section><h2>Recently updated</h2><div class="card flush"><ul class="list">{% for lead in recent %}<li><div><a class="strong" href="{% url 'lead_detail' lead.pk %}">{{ lead.name }}</a><div class="muted sm">{{ lead.business.name }}</div></div>{% include 'crm/status_badge.html' %}</li>{% empty %}<li class="empty">No leads yet.</li>{% endfor %}</ul></div></section>
+</div>
+{% endblock %}

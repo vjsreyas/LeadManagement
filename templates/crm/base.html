@@ -1,0 +1,35 @@
+{% load static crm_tags %}<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ page_title|default:"Leads" }} · Infinitus</title>
+<link rel="icon" href="{% static 'crm/favicon.svg' %}"><link rel="stylesheet" href="{% static 'crm/app.css' %}"></head>
+<body>
+{% if user.is_authenticated %}
+<div class="shell">
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="{% url 'dashboard' %}">∞ infinitus</a>
+  <nav>
+    <a href="{% url 'dashboard' %}" class="{% if nav == 'dashboard' %}on{% endif %}">Dashboard</a>
+    <a href="{% url 'leads' %}" class="{% if nav == 'leads' %}on{% endif %}">All leads</a>
+    <p class="label">Businesses</p>
+    {% for b in nav_businesses %}<a href="{% url 'business' b.slug %}" class="{% if active_business == b.pk %}on{% endif %}"><i class="dot" style="background:{{ b.color }}"></i>{{ b.name }}</a>{% endfor %}
+    <a href="{% url 'businesses' %}" class="sub {% if nav == 'businesses' %}on{% endif %}">+ Add / manage</a>
+  </nav>
+  <div class="side-bottom">
+    <a href="{% url 'account' %}" class="{% if nav == 'account' %}on{% endif %}">Team &amp; account</a>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="linklike">Sign out ({{ user|display_name }})</button></form>
+  </div>
+</aside>
+<div class="main">
+  <header class="topbar"><button class="menu" onclick="document.body.classList.toggle('nav-open')" aria-label="Menu">☰</button>
+    <form class="search" action="{% url 'leads' %}"><input name="q" placeholder="Search all leads…" value="{{ request.GET.q }}"></form>
+    <a class="btn primary" href="{% url 'lead_new' %}{% if business %}?business={{ business.pk }}{% endif %}">+ Add lead</a></header>
+  <main>
+    {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</div>
+{% else %}
+<main class="auth">{% block auth_content %}{% endblock %}</main>
+{% endif %}
+</body></html>

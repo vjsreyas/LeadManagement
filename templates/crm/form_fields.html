@@ -1,0 +1,4 @@
+{% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors }}</div>{% endif %}
+{% for h in form.hidden_fields %}{{ h }}{% endfor %}
+<div class="grid">{% for f in form.visible_fields %}
+<div class="field {% if f.name == 'notes' or f.name == 'lost_reason' %}wide{% endif %}" data-field="{{ f.name }}"><label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{% if f.help_text %}<small>{{ f.help_text }}</small>{% endif %}{% if f.errors %}<div class="err">{{ f.errors|join:" " }}</div>{% endif %}</div>{% endfor %}</div>

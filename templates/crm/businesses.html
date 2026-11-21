@@ -1,0 +1,8 @@
+{% extends 'crm/base.html' %}{% block content %}
+<div class="page-head"><h1>Businesses</h1></div>
+<p class="muted">Each business gets its own section in the sidebar. Add clinics or anything new whenever you start selling into it.</p>
+<div class="two"><section><div class="card flush"><ul class="list">{% for b in items %}<li><div><i class="dot" style="background:{{ b.color }}"></i><a class="strong" href="{% url 'business' b.slug %}">{{ b.name }}</a> <span class="muted sm">{{ b.total }} lead{{ b.total|pluralize }}</span></div>
+<form method="post" action="{% url 'business_delete' b.pk %}" onsubmit="return confirm('Remove {{ b.name|escapejs }}?')">{% csrf_token %}<button class="linklike danger" {% if b.total %}disabled title="Has leads"{% endif %}>Remove</button></form></li>{% empty %}<li class="empty">No businesses yet.</li>{% endfor %}</ul></div></section>
+<section><form method="post" class="card"><h3>Add a business</h3>{% csrf_token %}{% include 'crm/form_fields.html' %}<div class="actions"><button class="btn primary">Add business</button></div>
+<p class="muted sm">Suggestions: Gyms, Real estate, Clinics, Salons, Restaurants.</p></form></section></div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% load crm_tags %}
+<table class="table"><thead><tr><th>Lead</th>{% if not business %}<th>Business</th>{% endif %}<th>Status</th><th>Handled by</th><th>Last contact</th><th>Follow-up</th><th></th></tr></thead><tbody>
+{% for lead in rows %}<tr>
+<td><a class="strong" href="{% url 'lead_detail' lead.pk %}">{{ lead.name }}</a><div class="muted sm">{{ lead.contact_name }}{% if lead.contact_name and lead.phone %} · {% endif %}{{ lead.phone }}</div></td>
+{% if not business %}<td><i class="dot" style="background:{{ lead.business.color }}"></i>{{ lead.business.name }}</td>{% endif %}
+<td>{% include 'crm/status_badge.html' %}{% if lead.status == 'trial' and lead.trial_end %}<div class="muted sm">ends {{ lead.trial_end|date:"d M" }}</div>{% endif %}{% if lead.status == 'booked' and lead.booked_for %}<div class="muted sm">{{ lead.booked_for|date:"d M" }}</div>{% endif %}</td>
+<td>{{ lead.owner|display_name }}</td>
+<td>{{ lead.last_contacted|date:"d M"|default:"—" }}</td>
+<td>{% if lead.next_follow_up and lead.is_open %}<span class="{% if lead.follow_up_overdue %}overdue{% endif %}">{{ lead.next_follow_up|date:"d M" }}</span>{% else %}—{% endif %}</td>
+<td class="right"><a href="{% url 'lead_edit' lead.pk %}">Edit</a></td></tr>
+{% empty %}<tr><td colspan="7" class="empty">No leads here yet.</td></tr>{% endfor %}</tbody></table>

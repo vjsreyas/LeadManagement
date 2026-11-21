@@ -1,0 +1,31 @@
+{% extends 'crm/base.html' %}{% load crm_tags %}{% block content %}
+<div class="page-head"><div><a class="muted sm" href="{% url 'business' lead.business.slug %}">← {{ lead.business.name }}</a><h1>{{ lead.name }} {% include 'crm/status_badge.html' %}</h1></div>
+<div class="row"><a class="btn" href="{% url 'lead_edit' lead.pk %}">Edit</a></div></div>
+
+<form class="card status-bar" method="post" action="{% url 'lead_status' lead.pk %}">{% csrf_token %}<span class="muted sm">Move to</span>
+{% for key, label in statuses %}{% if key != lead.status %}<button class="chip s-{{ key }}" name="status" value="{{ key }}" {% if key == 'lost' %}onclick="var r=prompt('Why was this lead lost?');if(!r)return false;this.form.reason.value=r;"{% endif %}>{{ label }}</button>{% endif %}{% endfor %}<input type="hidden" name="reason"></form>
+
+<div class="two wide-left">
+<section>
+<div class="card"><h3>Details</h3><dl class="dl">
+<dt>Contact</dt><dd>{{ lead.contact_name|default:"—" }}</dd>
+<dt>Phone</dt><dd>{% if lead.phone %}<a href="tel:{{ lead.phone }}">{{ lead.phone }}</a> · <a href="https://wa.me/{{ lead.phone|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener">WhatsApp</a>{% else %}—{% endif %}</dd>
+<dt>Email</dt><dd>{% if lead.email %}<a href="mailto:{{ lead.email }}">{{ lead.email }}</a>{% else %}—{% endif %}</dd>
+<dt>Location</dt><dd>{{ lead.location|default:"—" }}</dd>
+<dt>Source</dt><dd>{{ lead.source|default:"—" }}</dd>
+<dt>Handled by</dt><dd>{{ lead.owner|display_name }}</dd>
+<dt>Deal value</dt><dd>{% if lead.value %}{{ lead.value|money }}{% else %}—{% endif %}</dd>
+<dt>Last contacted</dt><dd>{{ lead.last_contacted|date:"d M Y"|default:"—" }}</dd>
+<dt>Next follow-up</dt><dd class="{% if lead.follow_up_overdue %}overdue{% endif %}">{{ lead.next_follow_up|date:"d M Y"|default:"—" }}</dd>
+{% if lead.trial_start or lead.status == 'trial' %}<dt>Trial</dt><dd>{{ lead.trial_start|date:"d M"|default:"?" }} → {{ lead.trial_end|date:"d M"|default:"?" }}</dd>{% endif %}
+{% if lead.booked_for or lead.status == 'booked' %}<dt>Booked for</dt><dd>{{ lead.booked_for|date:"d M Y"|default:"—" }}</dd>{% endif %}
+{% if lead.status == 'lost' %}<dt>Lost because</dt><dd>{{ lead.lost_reason|default:"—" }}</dd>{% endif %}
+</dl>{% if lead.notes %}<h3>Notes</h3><p class="pre">{{ lead.notes }}</p>{% endif %}</div>
+<form class="card" method="post" action="{% url 'lead_delete' lead.pk %}" onsubmit="return confirm('Delete this lead and its history? This cannot be undone.')">{% csrf_token %}<button class="linklike danger">Delete lead</button></form>
+</section>
+<section><div class="card"><h3>Log a contact</h3>
+<form method="post" action="{% url 'lead_note' lead.pk %}">{% csrf_token %}<textarea name="body" rows="3" placeholder="Called, spoke to the owner, sent pricing…" required></textarea>
+<div class="row between"><select name="follow_up"><option value="">No follow-up</option><option value="1">Follow up tomorrow</option><option value="3">In 3 days</option><option value="7">In a week</option><option value="14">In 2 weeks</option></select><button class="btn primary">Save</button></div></form></div>
+<div class="card"><h3>Timeline</h3><ul class="timeline">{% for e in timeline %}<li class="{% if e.is_status %}status{% endif %}"><div class="sm muted">{{ e.author|display_name }} · {{ e.created_at|date:"d M, H:i" }}</div><div class="pre">{{ e.body }}</div></li>{% empty %}<li class="muted">Nothing yet.</li>{% endfor %}</ul></div></section>
+</div>
+{% endblock %}

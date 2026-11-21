@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: infinitus-leads
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health/
+    numInstances: 1
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SETUP_TOKEN
+        generateValue: true
+      - key: HTTPS
+        value: "true"
+      - key: TIME_ZONE
+        value: Asia/Kolkata

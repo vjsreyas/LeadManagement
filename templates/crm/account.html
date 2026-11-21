@@ -1,0 +1,6 @@
+{% extends 'crm/base.html' %}{% load crm_tags %}{% block content %}
+<div class="page-head"><h1>Team &amp; account</h1></div>
+<div class="two"><section><div class="card"><h3>Team</h3><ul class="list">{% for u in team %}<li><span>{{ u|display_name }} <span class="muted sm">@{{ u.username }}</span></span><span class="muted sm">{% if u.is_staff %}Owner{% else %}Partner{% endif %}</span></li>{% endfor %}</ul></div>
+{% if user.is_staff and not seats_full %}<form method="post" class="card"><h3>Add your partner</h3>{% csrf_token %}<input type="hidden" name="action" value="partner">{% include 'crm/form_fields.html' with form=partner_form %}<div class="actions"><button class="btn primary">Create account</button></div></form>{% endif %}</section>
+<section><form method="post" class="card"><h3>Change password</h3>{% csrf_token %}<input type="hidden" name="action" value="password">{% include 'crm/form_fields.html' with form=password_form %}<div class="actions"><button class="btn primary">Update password</button></div></form></section></div>
+{% endblock %}

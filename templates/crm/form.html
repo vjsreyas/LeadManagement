@@ -1,0 +1,14 @@
+{% extends 'crm/base.html' %}{% block content %}
+<div class="page-head"><h1>{{ page_title }}</h1></div>
+<form method="post" class="card">{% csrf_token %}{% include 'crm/form_fields.html' %}
+<div class="actions"><button class="btn primary">{{ submit_label }}</button><a class="btn" href="{{ cancel_url }}">Cancel</a></div></form>
+{% if is_lead %}<script>
+// Show only the date fields that matter for the chosen status.
+(function(){var s=document.getElementById('id_status');if(!s)return;
+var map={trial:['trial_start','trial_end'],booked:['booked_for'],lost:['lost_reason']};
+function sync(){var all=['trial_start','trial_end','booked_for','lost_reason'],on=map[s.value]||[];
+all.forEach(function(n){var el=document.querySelector('[data-field='+n+']');if(!el)return;
+var has=el.querySelector('input,textarea,select').value;el.style.display=(on.indexOf(n)>-1||has||el.querySelector('.err'))?'':'none';});}
+s.addEventListener('change',sync);sync();})();
+</script>{% endif %}
+{% endblock %}
